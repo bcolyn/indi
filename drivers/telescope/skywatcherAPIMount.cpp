@@ -104,7 +104,16 @@ bool SkywatcherAPIMount::initProperties()
     {
         // Name mirrors the label so TELESCOPE_SLEW_RATE elements are addressable
         // (indi_setprop, gamepad_control.py, etc.) by the multiplier they actually are.
-        auto name = std::to_string(SlewSpeeds[i]) + "x";
+        //
+        // %g, not std::to_string(): SlewSpeeds became double to carry the 0.5x
+        // preset, and std::to_string(double) emits six decimals -- silently
+        // renaming every element ("1x" -> "1.000000x") and breaking any consumer
+        // that addresses them by name. That broke cedar-goto's closed-loop
+        // correction for four days (it sets TELESCOPE_SLEW_RATE=1x before each
+        // nudge) and invalidated saved configs. %g yields 0.5x, 1x, 2x ... 1800x.
+        char nameBuf[32];
+        snprintf(nameBuf, sizeof(nameBuf), "%gx", SlewSpeeds[i]);
+        auto name = std::string(nameBuf);
         SlewRateSP[i].setName(name);
         SlewRateSP[i].setLabel(name);
         SlewRateSP[i].setAux(&SlewSpeeds[i]);
