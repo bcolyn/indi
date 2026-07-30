@@ -41,8 +41,12 @@ using namespace INDI::AlignmentSubsystem;
 static std::unique_ptr<SkywatcherAPIMount> SkywatcherAPIMountPtr(new SkywatcherAPIMount());
 
 /* Preset Slew Speeds */
-#define SLEWMODES 11
-static double SlewSpeeds[SLEWMODES] = { 0.5, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0, 256.0, 1800.0 };
+// 0.5x removed 2026-07-30: added when presets were an undocumented ~64x-inflated
+// scale (0.5x was then a usable ~0.5"-ish fine speed); once the %g rename fix
+// made presets genuine N x sidereal, 0.5x sidereal (~7.5"/s) turned out too
+// slow to be a useful step, so it's gone rather than kept as dead weight.
+#define SLEWMODES 10
+static double SlewSpeeds[SLEWMODES] = { 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0, 256.0, 1800.0 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 ///
